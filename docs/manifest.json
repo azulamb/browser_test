@@ -1,0 +1,20 @@
+{
+	"name": "Browser test",
+	"short_name": "Browser test",
+	"icons": [
+		{
+			"src": "./icon.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "./big_icon.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"start_url": "/",
+	"background_color": "#cdcdcd",
+	"display": "standalone",
+	"theme_color": "#000000"
+}
