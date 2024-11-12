@@ -10,7 +10,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <link rel="apple-touch-icon" href="./icon.png" sizes="192x192"/>
     <link rel="manifest" href="./manifest.json">
-    <style></style>
+    <style>
+#version::before { content: "Ver: " attr(data-version); }
+    </style>
     <script>
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('register').addEventListener('click', () => {
@@ -57,5 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <dd id="height"></dd>
       </dl>
     </div>
+    <footer>
+      <small id="version" data-version="0.0.1"></small>
+    </footer>
   </body>
 </html>
