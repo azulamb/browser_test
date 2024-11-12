@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     exitFullscreen().then(() => {});
   });
   ((width, height) => {
+    width.textContent = window.innerWidth;
+    height.textContent = window.innerHeight;
     window.addEventListener('resize', () => {
       width.textContent = window.innerWidth;
       height.textContent = window.innerHeight;
