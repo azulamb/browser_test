@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).then(() => {});
   });
   document.getElementById('window').addEventListener('click', () => {
-    exitFullscreen().then(() => {});
+    document.exitFullscreen().then(() => {});
   });
   ((width, height) => {
     width.textContent = window.innerWidth;
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </dl>
     </div>
     <footer>
-      <small id="version" data-version="0.0.1"></small>
+      <small id="version" data-version="0.0.2"></small>
     </footer>
   </body>
 </html>
