@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('window').addEventListener('click', () => {
     exitFullscreen().then(() => {});
   });
+  ((width, height) => {
+    window.addEventListener('resize', () => {
+      width.textContent = window.innerWidth;
+      height.textContent = window.innerHeight;
+    });
+  })(document.getElementById('width'), document.getElementById('height'));
 });
     </script>
   </head>
@@ -32,6 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <button id="unregister">Unregister</button>
       <button id="fullscreen">Fullscreen</button>
       <button id="window">Window</button>
+    </div>
+    <div>
+      <dl>
+        <dt>Width</dt>
+        <dd id="width"></dd>
+        <dt>Height</dt>
+        <dd id="height"></dd>
+      </dl>
     </div>
   </body>
 </html>
