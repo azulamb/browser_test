@@ -22,7 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   document.getElementById('fullscreen').addEventListener('click', () => {
-    document.documentElement.requestFullscreen('hide').then(() => {});
+    document.documentElement.requestFullscreen({
+      navigationUI: 'hide',
+      // screen
+    }).then(() => {});
   });
   document.getElementById('window').addEventListener('click', () => {
     exitFullscreen().then(() => {});
