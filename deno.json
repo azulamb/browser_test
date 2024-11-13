@@ -1,0 +1,8 @@
+{
+  "tasks": {
+  },
+  "fmt": {
+    "singleQuote": true
+  },
+  "lock": false
+}

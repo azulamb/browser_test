@@ -1,20 +1,20 @@
 {
-	"name": "Browser test",
-	"short_name": "Browser test",
-	"icons": [
-		{
-			"src": "./icon.png",
-			"type": "image/png",
-			"sizes": "192x192"
-		},
-		{
-			"src": "./big_icon.png",
-			"type": "image/png",
-			"sizes": "512x512"
-		}
-	],
-	"start_url": "/browser_test",
-	"background_color": "#cdcdcd",
-	"display": "fullscreen",
-	"theme_color": "#000000"
+  "name": "Browser test",
+  "short_name": "Browser test",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "./big_icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/browser_test",
+  "background_color": "#cdcdcd",
+  "display": "fullscreen",
+  "theme_color": "#000000"
 }
