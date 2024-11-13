@@ -11,6 +11,12 @@
     <link rel="apple-touch-icon" href="./icon.png" sizes="192x192"/>
     <link rel="manifest" href="./manifest.json">
     <style>
+html { margin: 0; font-size: 20px; }
+body { margin: 0; }
+header { margin: 0; display: grid; grid-template-areas: 't g' 't v'; grid-template-columns: auto auto; box-sizing: border-box; padding: 0 0.5rem; }
+h1 { margin: 0; font-size: 2rem; grid-area: t; }
+header > :not(h1) { text-align: right; }
+button { font-size: 1rem; cursor: pointer; }
 #version::before { content: "Ver: " attr(data-version); }
     </style>
     <script>
@@ -44,7 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
     </script>
   </head>
   <body>
-    <h1>Browser test</h1>
+    <header>
+      <h1>Browser test</h1>
+      <a href="https://github.com/azulamb/browser_test">GitHub</a>
+      <small id="version" data-version="0.0.3"></small>
+    </header>
     <div>
       <button id="register">Register</button>
       <button id="unregister">Unregister</button>
@@ -52,15 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
       <button id="window">Window</button>
     </div>
     <div>
-      <dl>
-        <dt>Width</dt>
-        <dd id="width"></dd>
-        <dt>Height</dt>
-        <dd id="height"></dd>
-      </dl>
+      <table>
+        <tbody>
+          <tr>
+            <td>Width</td>
+            <td id="width"></td>
+          </tr>
+          <tr>
+            <td>Height</td>
+            <td id="height"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <footer>
-      <small id="version" data-version="0.0.2"></small>
-    </footer>
   </body>
 </html>
