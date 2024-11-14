@@ -17,19 +17,25 @@
       }
       body {
         margin: 0;
+        padding: 0.5rem;
+        box-sizing: border-box;
       }
       header {
         margin: 0;
+        padding: 0;
         display: grid;
         grid-template-areas: 't g' 't v';
         grid-template-columns: auto auto;
         box-sizing: border-box;
-        padding: 0 0.5rem;
       }
       h1 {
         margin: 0;
         font-size: 2rem;
         grid-area: t;
+      }
+      h2 {
+        display: flex;
+        justify-content: space-between;
       }
       header > :not(h1) {
         text-align: right;
@@ -60,9 +66,24 @@
       #version::before {
         content: 'Ver: ' attr(data-version);
       }
+      [colspan='0'] {
+        display: none;
+      }
+      .gamepad_id {
+        width: 8rem;
+      }
+      #padinput::before {
+        content: var(--status, '⯈');
+      }
+      #padinput.playing {
+        --status: '⯀';
+      }
+      .axis input {
+        width: 4rem;
+      }
     </style>
     <script>
-      document.addEventListener('DOMContentLoaded', () => {
+      function ServiceWorkerInit() {
         document.getElementById('register').addEventListener('click', () => {
           navigator.serviceWorker.register('./sw.js').then(() => {});
         });
@@ -71,6 +92,8 @@
             registration.unregister().then(() => {});
           });
         });
+      }
+      function ScreenInit() {
         document.getElementById('fullscreen').addEventListener('click', () => {
           document.documentElement.requestFullscreen({
             navigationUI: 'hide',
@@ -88,30 +111,156 @@
             height.textContent = window.innerHeight;
           });
         })(document.getElementById('width'), document.getElementById('height'));
-        ((key, code, ctrl, shift, alt, meta, locale, location, composing) => {
-          document.body.addEventListener('keydown', (event) => {
-            key.value = event.key;
-            code.value = event.code;
-            ctrl.checked = event.ctrlKey;
-            shift.checked = event.shiftKey;
-            alt.checked = event.altKey;
-            meta.checked = event.metaKey;
-            locale.value = event.locale || '';
-            location.value = event.location;
-            composing.checked = event.isComposing;
+      }
+      function KeyboardInputInit(
+        key,
+        code,
+        ctrl,
+        shift,
+        alt,
+        meta,
+        locale,
+        location,
+        composing,
+      ) {
+        document.body.addEventListener('keydown', (event) => {
+          key.value = event.key;
+          code.value = event.code;
+          ctrl.checked = event.ctrlKey;
+          shift.checked = event.shiftKey;
+          alt.checked = event.altKey;
+          meta.checked = event.metaKey;
+          locale.value = event.locale || '';
+          location.value = event.location;
+          composing.checked = event.isComposing;
+        });
+        document.body.addEventListener('keyup', () => {
+          key.value = '';
+          code.value = '';
+          ctrl.checked = false;
+          shift.checked = false;
+          alt.checked = false;
+          meta.checked = false;
+          locale.value = '';
+          location.value = '';
+          composing.checked = false;
+        });
+      }
+      function GamePadInputInit(header, gamepads, axis, buttons, padInput) {
+        const data = {};
+        padInput.addEventListener('click', () => {
+          if (padInput.classList.contains('playing')) {
+            padInput.classList.remove('playing');
+          } else {
+            padInput.classList.add('playing');
+            GamepadLoop();
+          }
+        });
+        window.addEventListener('gamepadconnected', (event) => {
+          data[event.gamepad.id] = {
+            gamepad: event.gamepad,
+            tr: document.createElement('tr'),
+            inputs: {},
+          };
+          update();
+          if (!padInput.classList.contains('playing')) {
+            padInput.classList.add('playing');
+            GamepadLoop();
+          }
+        });
+        window.addEventListener('gamepaddisconnected', (event) => {
+          delete data[event.gamepad.id];
+          update();
+        });
+        function GamepadLoop() {
+          const gamepads = navigator.getGamepads();
+          for (const gamepad of gamepads) {
+            if (!gamepad || !data[gamepad.id]) {
+              continue;
+            }
+            for (let index = 0; index < gamepad.axes.length; ++index) {
+              data[gamepad.id].inputs[`axis_${index}`].value = gamepad.axes[index];
+            }
+            for (let index = 0; index < gamepad.buttons.length; ++index) {
+              const button = gamepad.buttons[index];
+              data[gamepad.id].inputs[`button_${index}`].checked = button.pressed;
+            }
+          }
+          if (padInput.classList.contains('playing')) {
+            requestAnimationFrame(GamepadLoop);
+          }
+        }
+        function update() {
+          const status = { axis: 0, button: 0 };
+          const list = Object.keys(data).map((id) => {
+            status.axis = Math.max(status.axis, data[id].gamepad.axes.length);
+            status.button = Math.max(
+              status.button,
+              data[id].gamepad.buttons.length,
+            );
+            return data[id];
+          }).sort((a, b) => {
+            return a.gamepad.index - b.gamepad.index;
           });
-          document.body.addEventListener('keyup', () => {
-            key.value = '';
-            code.value = '';
-            ctrl.checked = false;
-            shift.checked = false;
-            alt.checked = false;
-            meta.checked = false;
-            locale.value = '';
-            location.value = '';
-            composing.checked = false;
-          });
-        })(...[
+          axis.colSpan = status.axis;
+          buttons.colSpan = status.button;
+          while (header.querySelectorAll('.axis').length < status.axis) {
+            const th = document.createElement('th');
+            th.classList.add('axis');
+            th.textContent = `${header.querySelectorAll('.axis').length}`;
+            header.insertBefore(th, header.querySelector('.button'));
+          }
+          while (header.querySelectorAll('.button').length < status.button) {
+            const th = document.createElement('th');
+            th.classList.add('button');
+            th.textContent = `${header.querySelectorAll('.button').length}`;
+            header.appendChild(th);
+          }
+          for (const item of list) {
+            console.log(item);
+            if (!gamepads.querySelector(`[data-index="${item.gamepad.index}"]`)) {
+              gamepads.appendChild(item.tr);
+              const index = document.createElement('td');
+              index.textContent = item.gamepad.index;
+              const input = document.createElement('input');
+              input.classList.add('gamepad_id');
+              input.value = item.gamepad.id;
+              input.readOnly = true;
+              const id = document.createElement('td');
+              id.appendChild(input);
+              item.tr.dataset.index = item.gamepad.index;
+              item.tr.appendChild(index);
+              item.tr.appendChild(id);
+            }
+            while (item.tr.querySelectorAll('.axis').length < status.axis) {
+              const input = document.createElement('input');
+              input.type = 'number';
+              input.readOnly = true;
+              const td = document.createElement('td');
+              td.classList.add('axis');
+              td.appendChild(input);
+              item.inputs[`axis_${item.tr.querySelectorAll('.axis').length}`] =
+                input;
+              item.tr.insertBefore(td, item.tr.querySelector('.button'));
+            }
+            while (item.tr.querySelectorAll('.button').length < status.button) {
+              const input = document.createElement('input');
+              input.type = 'checkbox';
+              const td = document.createElement('td');
+              td.classList.add('button');
+              td.appendChild(input);
+              item.inputs[`button_${item.tr.querySelectorAll('.button').length}`] =
+                input;
+              item.tr.appendChild(td);
+            }
+          }
+        }
+        update();
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        ServiceWorkerInit();
+        ScreenInit();
+        KeyboardInputInit(...[
           'key',
           'code',
           'ctrl',
@@ -124,6 +273,13 @@
         ].map((id) => {
           return document.getElementById(id);
         }));
+        GamePadInputInit(
+          document.getElementById('gamepad_buttons'),
+          document.getElementById('gamepads'),
+          document.getElementById('axis'),
+          document.getElementById('buttons'),
+          document.getElementById('padinput'),
+        );
       });
     </script>
   </head>
@@ -133,39 +289,40 @@
       <a href="https://github.com/azulamb/browser_test">GitHub</a>
       <small id="version" data-version="0.0.3"></small>
     </header>
-    <div>
+    <section>
       <button id="register">Register</button>
       <button id="unregister">Unregister</button>
       <button id="fullscreen">Fullscreen</button>
       <button id="window">Window</button>
-    </div>
-    <div>
+    </section>
+    <section>
       <table>
         <tbody>
           <tr>
-            <td>Width</td>
+            <th>Width</th>
             <td id="width"></td>
           </tr>
           <tr>
-            <td>Height</td>
+            <th>Height</th>
             <td id="height"></td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div>
+    </section>
+    <section>
+      <h2>Keyboard</h2>
       <table>
         <tbody>
           <tr>
-            <td>Key</td>
-            <td>Code</td>
-            <td>Ctrl</td>
-            <td>Shift</td>
-            <td>Alt</td>
-            <td>Meta</td>
-            <td>Locale</td>
-            <td>Location</td>
-            <td>Composing</td>
+            <th>Key</th>
+            <th>Code</th>
+            <th>Ctrl</th>
+            <th>Shift</th>
+            <th>Alt</th>
+            <th>Meta</th>
+            <th>Locale</th>
+            <th>Location</th>
+            <th>Composing</th>
           </tr>
           <tr>
             <td><input type="text" id="key" readonly /></td>
@@ -184,6 +341,23 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </section>
+    <section>
+      <h2>Gamepad<button id="padinput"></button></h2>
+      <table>
+        <thead>
+          <tr>
+            <th colspan="2"></th>
+            <th colspan="0" id="axis">Axis</th>
+            <th colspan="0" id="buttons">Buttons</th>
+          </tr>
+          <tr id="gamepad_buttons">
+            <th>Index</th>
+            <th>ID</th>
+          </tr>
+        </thead>
+        <tbody id="gamepads"></tbody>
+      </table>
+    </section>
   </body>
 </html>
