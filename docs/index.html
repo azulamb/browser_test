@@ -44,18 +44,21 @@
         font-size: 1rem;
         cursor: pointer;
       }
-      input {
+      input:not([type='checkbox']) {
         font-size: 1rem;
         width: 2rem;
       }
       label:has(input[type='checkbox']) {
         width: 1rem;
         height: 1rem;
-        display: grid;
+        display: inline-grid;
       }
       label > input[type='checkbox'] {
         margin: 0;
         padding: 0;
+      }
+      td:has(label) {
+        text-align: center;
       }
       input:read-only {
         outline: none;
@@ -246,9 +249,11 @@
             while (item.tr.querySelectorAll('.button').length < status.button) {
               const input = document.createElement('input');
               input.type = 'checkbox';
+              const label = document.createElement('label');
+              label.appendChild(input);
               const td = document.createElement('td');
               td.classList.add('button');
-              td.appendChild(input);
+              td.appendChild(label);
               item.inputs[`button_${item.tr.querySelectorAll('.button').length}`] =
                 input;
               item.tr.appendChild(td);
@@ -287,7 +292,7 @@
     <header>
       <h1>Browser test</h1>
       <a href="https://github.com/azulamb/browser_test">GitHub</a>
-      <small id="version" data-version="0.0.4"></small>
+      <small id="version" data-version="0.0.5"></small>
     </header>
     <section>
       <button id="register">Register</button>
